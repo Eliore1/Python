@@ -1,8 +1,4 @@
-﻿from math import trunc
-
-from GameManager import Game
-from Player import Player
+﻿from GameManager import Game
 
 game = Game()
 game.run()
-
