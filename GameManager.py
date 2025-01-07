@@ -1,4 +1,6 @@
-﻿from enum import Enum
+﻿import random
+from audioop import minmax
+from enum import Enum
 from turtledemo.paint import switchupdown
 
 from Player import Player
@@ -78,7 +80,9 @@ class Game:
     def end(self):
         print("Game ended")
         self.running = False
+    random.randrange(0.0, 3.0)
 
+    random.randbytes(0.0, 3.0)
     def receiveInput(self):
         player_input = input("Enter your command: ")
         return player_input
