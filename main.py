@@ -2,3 +2,9 @@
 
 game = Game()
 game.run()
+
+
+test = ""
+print(test)
+test += "P"
+print(test)

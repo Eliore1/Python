@@ -1,16 +1,19 @@
-﻿
+﻿import random
 
 class Player:
-    def __init__(self, name:str, max_life:float, base_damage:float, level:int, experience:int):
-        self.name = name
+    def __init__(self, name:str):
+        self.name:str = name
 
-        self.max_life = max_life
-        self.life = max_life
+        self.strength:int = random.randint(-5,5)
+        self.dexterity:int = random.randint(-5,5)
+        self.constitution:int = random.randint(-5,5)
+        self.intelligence:int = random.randint(-5,5)
+        self.wisdom:int = random.randint(-5,5)
+        self.charisma:int = random.randint(-5,5)
 
-        self.base_damage = base_damage
-        self.damage = base_damage
+    def __str__(self):
+        return "strength : " + str(self.strength) + '\n' + "dexterity :" + str(self.dexterity) + '\n' + "constitution : " + str(self.constitution) + '\n' + "intelligence : " + str(self.intelligence) + '\n' + "wisdom : " + str(self.wisdom) + '\n' + "charisma : " + str(self.charisma) + '\n'
 
-        self.level = level
-        self.experience = experience
+
 
 

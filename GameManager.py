@@ -4,7 +4,7 @@ from enum import Enum
 from turtledemo.paint import switchupdown
 
 from Player import Player
-
+from Map import Map
 
 class STATE(Enum):
     BEGIN = 1
@@ -27,6 +27,10 @@ class Game:
 
        self._hasShowWelcome = False
        self._hasStarted = False
+       self.test = False
+
+       self.player = Player("Default")
+       self.map = Map()
 
 
     def run(self):
@@ -35,7 +39,7 @@ class Game:
                 self.begin()
 
             elif self.state == STATE.PLAYING:
-                print("You are playing")
+                self.play()
 
             elif self.state == STATE.PAUSE:
                 print("You are paused")
@@ -64,6 +68,9 @@ class Game:
 
         inputBegin = self.receiveInput()
         if (inputBegin == "play"):
+            inputName = input("Enter your name: ")
+            print("Good luck " + inputName + '\n')
+            self.player.name = inputName
             print("Launching game\n")
             self.state = STATE.PLAYING
         elif (inputBegin == "quit"):
@@ -75,14 +82,17 @@ class Game:
 
     def play(self):
         if self._hasStarted == False:
-            pass
+            print("Here are your stats : \n")
+            print(self.player)
+            self._hasStarted = True
+        if self.test == False:
+            self.map.draw()
+            self.test = True
 
     def end(self):
         print("Game ended")
         self.running = False
-    random.randrange(0.0, 3.0)
 
-    random.randbytes(0.0, 3.0)
     def receiveInput(self):
         player_input = input("Enter your command: ")
         return player_input
