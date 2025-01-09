@@ -17,9 +17,8 @@ class Map:
         j = 0
         currentLine:str = ""
         for i in range(0, self.height):
-            for j in range(0, self.width):
-                if self.playerPos == Vector2(i, j):
-                    currentLine += "P"
-                else:
-                    currentLine += "-"
+            if self.playerPos == Vector2(i, j):
+                currentLine += "P"
+            else:
+                currentLine += "-"
             print(currentLine)
