@@ -10,4 +10,4 @@ class Wyvern:
         player.life -= self.damage
 
     def isDead(self):
-        return self.life > 0
+        return self.life <= 0

@@ -1,13 +1,14 @@
 ﻿import random
 
 class Player:
-    def __init__(self, name:str, life:int):
+    def __init__(self, name:str, life:int, damage:int):
         self.name:str = name
         self.life:int = life
-
+        self.damage:int = damage
         self.potions = 0
 
-        self.strength:int = random.randint(-5,5)
+        #self.strength:int = random.randint(-5,5)
+        self.strength:int = 10
         self.dexterity:int = random.randint(-5,5)
         self.constitution:int = random.randint(-5,5)
         self.intelligence:int = random.randint(-5,5)
@@ -30,7 +31,9 @@ class Player:
         pass
 
     def isDead(self):
-        return self.life > 0
+        if self.life <= 0:
+            return True
+        return False
 
 
 

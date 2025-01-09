@@ -1,10 +1,6 @@
 ﻿from GameManager import Game
-
+from Player import Player
 game = Game()
-game.run()
+#game.run()
 
 
-test = ""
-print(test)
-test += "P"
-print(test)
