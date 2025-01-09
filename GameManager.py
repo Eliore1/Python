@@ -1,12 +1,8 @@
 ﻿import random
-from audioop import minmax
 from enum import Enum
-from getpass import fallback_getpass
-from operator import truediv
-from turtledemo.paint import switchupdown
-
 from Player import Player
 from Map import Map
+
 
 class STATE(Enum):
     BEGIN = 1
@@ -95,18 +91,7 @@ class Game:
 
 
     def play(self):
-        print("In the heart of the Greystone Mountains, the peaceful village of Greystone was plagued by a terrible threat. Each night, a shadowy wyvern descended, snatching sheep and cattle, leaving the villagers in terror.\n" +
-              "Desperate they turn to you and seek for help \n")
-
-        inputBegin = input("Will you helped them: (y/n)\n")
-        while inputBegin != "y" and inputBegin != "n":
-            print("Invalid input. Please try again.")
-            inputBegin = input("Will you helped them: (y/n)\n")
-        if (inputBegin == "y"):
-            pass
-        elif (inputBegin == "n"):
-            print("Coward ! Say the village chief before murdering you...\n")
-            self.state = STATE.END
+        self.beginStory()
 
         inputPath = input("After long hours of climbing you arrived at cross path, wich way will you choose : (left/right) \n")
         while inputPath != "left" and inputPath != "right":
@@ -119,6 +104,8 @@ class Game:
             print("It was a good choice\n")
 
         print("You arrived at the entry of a cave and entered it, there a beautiful but dreadful wyvern is waiting for you. \n")
+        # modifier pour rajouter le choix de check avant pour pas casser les couilles
+
         print("What will you do?\n ")
         print("Fight \n")
         print("Run \n")
@@ -127,41 +114,28 @@ class Game:
         while inputWyvern != "Run" and inputWyvern != "Fight" and inputWyvern != "Check":
             print("Invalid input. Please try again.")
             inputWyvern = input("Enter your choice: ")
-        if (inputWyvern == "Fight"):
+        if inputWyvern == "Check":
+            print("You see a chest. Will you open it?")
+            inputChest = input("Enter your choice: (y/n)\n")
+            while inputChest != "y" and inputChest != "n":
+                inputChest = input("Invalid input. Please try again: (y/n)\n")
+            if inputChest == "y":
+                print("You have found a healing potion, congratulations!\n")
+                self.player.potions += 1
+            elif inputChest == "n":
+                print("You go back to the wyvern nest\n")
+
+        if inputWyvern == "Fight":
             sucess = Dnd.roll(self.player.strength, 15)
             print("fight")
             if sucess:
                 print("You have sucessful fight.")
                 self.state = STATE.END
                 return
-        elif (inputWyvern == "Run"):
+        elif inputWyvern == "Run":
             print("The wyvern catch you while you were trying to flee and swallow you...")
             self.state = STATE.END
             return
-        elif (inputWyvern == "Check"):
-            print("You see a chest, will you opened it")
-            inputChest = input("Enter your choice: (y/n)\n")
-            while inputChest != "y" and inputChest != "n":
-                inputChest = input("Invalid input. Please try again.")
-            if inputChest == "y":
-                print("You have found a healing potion, congratulations!\n")
-                self.player.potions += 1
-            elif inputChest == "n":
-                print("You go back to the wyvern nest\n")
-        inputWyvern2 = input("Enter your choice: (Fight/Run) \n")
-        while inputWyvern2 != "Run" and inputWyvern2 != "Fight":
-            print("Invalid input. Please try again.")
-            inputWyvern2 = input("Enter your choice: ")
-        if (inputWyvern == "Fight"):
-            sucess = Dnd.roll(self.player.strength, 15)
-            print("fight")
-            if sucess:
-                print("You have sucessful fight.")
-                self.state = STATE.END
-        elif (inputWyvern == "Run"):
-            print("The wyvern catch you while you were trying to flee and swallow you...")
-            self.state = STATE.END
-
 
 
     def end(self):
@@ -172,5 +146,17 @@ class Game:
         else:
             self.running = False
 
+    def beginStory(self):
+        print("In the heart of the Greystone Mountains, the peaceful village of Greystone was plagued by a terrible threat. Each night, a shadowy wyvern descended, snatching sheep and cattle, leaving the villagers in terror.\n" +
+              "Desperate they turn to you and seek for help \n")
 
+        inputBegin = input("Will you helped them: (y/n)\n")
+        while inputBegin != "y" and inputBegin != "n":
+            print("Invalid input. Please try again.")
+            inputBegin = input("Will you helped them: (y/n)\n")
+        if (inputBegin == "y"):
+            pass
+        elif (inputBegin == "n"):
+            print("Coward ! Say the village chief before murdering you...\n")
+            self.state = STATE.END
 
