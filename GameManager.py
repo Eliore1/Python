@@ -1,8 +1,8 @@
 ﻿import random
 from enum import Enum
 from Player import Player
-from Map import Map
 from Ennemies import Wyvern
+import pytest
 
 class STATE(Enum):
     BEGIN = 1
@@ -63,9 +63,9 @@ class Game:
         Game.welcomeMessage()
         print("           play                       quit           \n")
 
-        inputBegin = Game.getInput(Game.getCommandRequestMessage(), ["play", "quit"])
+        inputBegin = Game.getInput(Game.getCommandRequestMessage() + "(play/quit): ", ["play", "quit"])
 
-        if (inputBegin == "play"):
+        if Game.checkAnwser(inputBegin, "play"):
             inputName = input("Enter your name: ")
             self.player.name = inputName
             print("Here are your stats : \n")
@@ -73,83 +73,43 @@ class Game:
             print("Good luck " + inputName + '\n')
             print("Launching game\n")
             self.state = STATE.PLAYING
-        elif (inputBegin == "quit"):
+        elif Game.checkAnwser(inputBegin, "quit"):
             print("Quitting game\n")
             self.running = False
 
 
+
     def play(self):
-        self.beginStory()
+        self.handleVillage()
 
-        if self.state == STATE.END:
-            return
+        assert self.state == STATE.END
 
-        inputPath = Game.getInput("After long hours of climbing you arrived at cross path, wich way will you choose : (left/right) \n", ["left", "right"])
-        if (inputPath == "left"):
+        print("After long hours of climbing you arrived at cross path, wich way will you choose")
+        inputPath = Game.getInput(Game.getCommandRequestMessage() + "(left/right) :", ["left", "right"])
+        if Game.checkAnwser(inputPath, "left"):
             print("It was not a wise choice, due to a rock falling you loose 2 hp...\n")
             self.player.life -= 2
-        elif (inputPath == "right"):
+        elif Game.checkAnwser(inputPath, "right"):
             print("It was a good choice\n")
 
         print("You arrived at the entry of a cave and entered it, as you walk inside you see 2 way. \n"
               
               "One is leading to something like a ruin and the other go deeper inside the cave")
-        inputEntry = input("Enter your choice (deeper/ruin : \n")
-        while inputEntry != "deeper" and inputEntry != "ruin":
-            print("Invalid input. Please try again.")
-            inputEntry = input("Enter your choice (deeper/ruin : \n")
-        if inputEntry == "ruin":
-            print("You see a chest. Will you open it?")
-            inputChest = input("Enter your choice: (y/n)\n")
-            while inputChest != "y" and inputChest != "n":
-                inputChest = input("Invalid input. Please try again: (y/n)\n")
-            if inputChest == "y":
-                print("You have found a healing potion, congratulations!\n")
-                print("You go back to the other way deeper\n")
-                self.player.potions += 1
-            elif inputChest == "n":
-                print("You go back to the other way deeper\n")
+
+        inputEntry = Game.getInput(Game.getCommandRequestMessage() + "(deeper/ruin) : \n", ["deeper", "ruin"])
+        if Game.checkAnwser(inputEntry, "deeper"):
+            pass
+        elif Game.checkAnwser(inputEntry, "ruin"):
+            self.handleRuin()
 
         print("You arrived at the entry of the wyvern nest, there lie the dreadful create\n")
         print("What will you do?\n ")
         print("Fight \n")
         print("Run \n")
-        inputWyvern = input("Enter your choice: (Fight/Run) \n")
-        while inputWyvern != "Run" and inputWyvern != "Fight":
-            print("Invalid input. Please try again.")
-            inputWyvern = input("Enter your choice: ")
-        if inputWyvern == "Fight":
-            while not self.player.isDead() and not self.wyvern.isDead():
-                inputChoice = input("What do you do? Deal a blow or use a potion (blow/potion) \n:")
-                while inputChoice != "blow" and inputChoice != "potion":
-                    print("Invalid input. Please try again.")
-                    inputChoice = input("Enter your choice: ")
-                if inputChoice == "potion":
-                    if self.player.potions > 0:
-                        self.player.potions -= 1
-                        self.player.life += 2
-                        print("You use a potion, you have now " + str(self.player.life) + " hp\n")
-                    else:
-                        print("You don't have any potions\n")
-                else:
-                    sucess = Dnd.roll(self.player.strength, 15)
-                    if sucess:
-                        print("You successfully deal a blow!\n")
-                        self.wyvern.life -= self.player.damage
-                        print("You deal " + str(self.player.damage) + " damage.\n")
-                        print("The wyvern have" + str(self.wyvern.life) + " hp.\n")
-                    elif sucess == False:
-                        print("bad luck ! you failed\n")
-                        print("you received " + str(self.wyvern.damage) + " damage.\n")
-                        self.player.life -= self.wyvern.damage
-                        print("You have  " + str(self.player.life) + " hp\n")
-            if (self.wyvern.life > self.player.life):
-                print("You loose !!!")
-            else:
-                print("You win !!!")
-            self.state = STATE.END
-            return
-        elif inputWyvern == "Run":
+        inputWyvern = Game.getInput(Game.getCommandRequestMessage() + " (fight/run): ", ["fight", "run"])
+        if Game.checkAnwser(inputWyvern, "fight"):
+            self.handleWyvernFight()
+        elif inputWyvern == "run":
             print("The wyvern catch you while you were trying to flee and swallow you...")
             self.state = STATE.END
             return
@@ -187,24 +147,64 @@ class Game:
         return userInput
 
     @staticmethod
+    def checkAnwser(input:str, choice:str) -> bool:
+        if input == choice:
+            return True
+        return False
+
+    @staticmethod
     def getCommandRequestMessage() ->str:
         return "Enter your command: "
 
     # Story functions
-    def beginStory(self):
+    def handleVillage(self):
         print("In the heart of the Greystone Mountains, the peaceful village of Greystone was plagued by a terrible threat. Each night, a shadowy wyvern descended, snatching sheep and cattle, leaving the villagers in terror.\n" +
-              "Desperate they turn to you and seek for help \n")
+              "Desperate they turn to you and seek for help, Will you helped them:  \n")
 
-        inputBegin = input("Will you helped them: (y/n)\n")
-        while inputBegin != "y" and inputBegin != "n":
-            print("Invalid input. Please try again.")
-            inputBegin = input("Will you helped them: (y/n)\n")
-        if (inputBegin == "y"):
+        inputBegin = Game.getInput(Game.getCommandRequestMessage() + "(y/n): ", ["y","n"])
+        if Game.checkAnwser(inputBegin, "y"):
             pass
-        elif (inputBegin == "n"):
+        elif Game.checkAnwser(inputBegin, "n"):
             print("Coward ! Say the village chief before murdering you...\n")
             self.state = STATE.END
 
     def handleRuin(self):
-        pass
+        print("You see a chest. Will you open it?")
+        inputChest = Game.getInput(Game.getCommandRequestMessage() + "(y/n) :", ["y", "n"])
+        if Game.checkAnwser(inputChest, "y"):
+            print("You have found a healing potion, congratulations!\n")
+            print("You go back to the other way deeper\n")
+            self.player.potions += 1
+        elif Game.checkAnwser(inputChest, "n"):
+            print("You go back to the other way deeper\n")
 
+    def handleWyvernFight(self):
+        while not self.player.isDead() and not self.wyvern.isDead():
+            print("What do you do? Deal a blow or use a potion (blow/potion) \n:")
+            inputChoice = Game.getInput(Game.getCommandRequestMessage() + "(blow/potion) : ", ["blow", "potion"])
+            if Game.checkAnwser(inputChoice, "blow"):
+                sucess = Dnd.roll(self.player.strength, 15)
+                if sucess:
+                    print("You successfully deal a blow!\n")
+                    self.wyvern.life -= self.player.damage
+                    print("You deal " + str(self.player.damage) + " damage.\n")
+                    print("The wyvern have" + str(self.wyvern.life) + " hp.\n")
+                elif sucess == False:
+                    print("bad luck ! you failed\n")
+                    print("you received " + str(self.wyvern.damage) + " damage.\n")
+                    self.player.life -= self.wyvern.damage
+                    print("You have  " + str(self.player.life) + " hp\n")
+                    print("You don't have any potions\n")
+            elif Game.checkAnwser(inputChoice, "potion"):
+                if self.player.potions > 0:
+                    self.player.potions -= 1
+                    self.player.life += 2
+                    print("You use a potion, you have now " + str(self.player.life) + " hp\n")
+                else:
+                    print("You don't have any potions\n")
+        if (self.wyvern.life > self.player.life):
+            print("You loose !!!")
+        else:
+            print("You win !!!")
+        self.state = STATE.END
+        return
