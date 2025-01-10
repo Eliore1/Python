@@ -2,6 +2,7 @@
 from enum import Enum
 from Player import Player
 from Ennemies import Wyvern
+import Pnj
 import pytest
 
 class STATE(Enum):
@@ -31,14 +32,16 @@ class Dnd:
 
 class Game:
     def __init__(self):
-       self.running = True
-       self.state = STATE.BEGIN
+       self.running:bool = True
+       self.state:STATE = STATE.BEGIN
 
-       self._hasStarted = False
-       self.test = False
+       self._hasStarted:bool = False
+       self.test:bool = False
 
-       self.player = Player("Default", 10,4)
-       self.wyvern = Wyvern(10,3)
+       self.player:Player = Player("Default", 10,4)
+       self.wyvern:Wyvern = Wyvern(10,3)
+       self.pnj:Pnj
+       self.createVillager()
 
 #   Core functions
     def run(self):
@@ -157,6 +160,24 @@ class Game:
         return "Enter your command: "
 
     # Story functions
+
+    def createVillager(self):
+        introDialogues = []
+        introDialogue1 = "Hey you ! What do you want ? Why have you come to this place ? *Ask a villager in a angry voice*\n"
+        introDialogues.append(introDialogue1)
+
+        choice1 = "Just checking around\n"
+        anwser1 = "There is nothing to see around here, don't lie!\n"
+
+        choice2 = "I'm a hunter and looking for work\n"
+        anwser2 = "OH a hunter !? I might have something for you. Sorry for being rude\n"
+        dict = {choice1 : anwser1, choice2 : anwser2}
+
+
+        self.pnj = Pnj.Pnj("Corentin", introDialogues, dict)
+
+
+
     def handleVillage(self):
         print("In the heart of the Greystone Mountains, the peaceful village of Greystone was plagued by a terrible threat. Each night, a shadowy wyvern descended, snatching sheep and cattle, leaving the villagers in terror.\n" +
               "Desperate they turn to you and seek for help, Will you helped them:  \n")
