@@ -7,8 +7,7 @@ class Player:
         self.damage:int = damage
         self.potions = 0
 
-        #self.strength:int = random.randint(-5,5)
-        self.strength:int = 10
+        self.strength:int = random.randint(-5,5)
         self.dexterity:int = random.randint(-5,5)
         self.constitution:int = random.randint(-5,5)
         self.intelligence:int = random.randint(-5,5)

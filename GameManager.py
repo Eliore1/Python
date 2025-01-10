@@ -1,5 +1,9 @@
 ﻿import random
 from enum import Enum
+import os
+import sys
+
+import GameManager
 from Player import Player
 from Ennemies import Wyvern
 import Pnj
@@ -59,7 +63,7 @@ class Game:
                 self.end()
 
             else:
-                quit()
+                assert False, "Unknown state"
         quit()
 
     def begin(self):
@@ -85,7 +89,8 @@ class Game:
     def play(self):
         self.handleVillage()
 
-        assert self.state == STATE.END
+        if self.state != STATE.PLAYING:
+            return
 
         print("After long hours of climbing you arrived at cross path, wich way will you choose")
         inputPath = Game.getInput(Game.getCommandRequestMessage() + "(left/right) :", ["left", "right"])
@@ -120,12 +125,15 @@ class Game:
 
     def end(self):
         print("Game ended")
-        inputRestart = input("Do you want to play again? (y/n)")
-        if inputRestart == "y":
+        print(self.state)
+        inputRestart = Game.getInput("Do you want to play again? (y/n) : \n", ["y","n"])
+        if Game.checkAnwser(inputRestart, "y"):
             self.state = STATE.BEGIN
-            #restart stat
-        elif inputRestart == "n":
-            self.running = False
+            print("Restarting...")
+
+        elif Game.checkAnwser(inputRestart, "n"):
+            print("Game Shutdown")
+            quit()
 
 
     # Statics functions
@@ -159,35 +167,72 @@ class Game:
     def getCommandRequestMessage() ->str:
         return "Enter your command: "
 
+    @staticmethod
+    def loose(game:GameManager):
+        game.state = STATE.END
+        game.end()
+
+    @staticmethod
+    def givePotion(game:GameManager):
+        game.player.potions += 1
+
+
     # Story functions
-
     def createVillager(self):
-        introDialogues = []
-        introDialogue1 = "Hey you ! What do you want ? Why have you come to this place ? *Ask a villager in a angry voice*\n"
-        introDialogues.append(introDialogue1)
+        # Main Dialogue
+        introDialogues = [
+            "Villager: Hey you! What do you want?\n",
+            "Villager: Why have you come to this place? *Asks the villager angrily*\n"
+        ]
 
-        choice1 = "Just checking around\n"
-        anwser1 = "There is nothing to see around here, don't lie!\n"
+        # Main choices and responses
+        dict_main = {
+            "You: Just checking around\n": Pnj.Line(
+                "Villager: There is nothing to see around here. Don't lie! *He pulls out a dagger.*\n"
+            ),
+            "You: I'm a hunter and looking for work\n": Pnj.Line(
+                "Villager: OH, a hunter!? I might have something for you. Sorry for being rude.\n"
+            )
+        }
 
-        choice2 = "I'm a hunter and looking for work\n"
-        anwser2 = "OH a hunter !? I might have something for you. Sorry for being rude\n"
-        dict = {choice1 : anwser1, choice2 : anwser2}
+        # Sub-dialogue for "Just checking around"
+        subIntro1 = ["Villager: *He approaches you.*\n"]
+        subDict1 = {
+            "Villager: *He stabs you and takes all your belongings.*\n": Pnj.Line(
+                "GAME OVER.\n", action=lambda: GameManager.Game.loose(self)
+            )
+        }
+        subDialogue1 = Pnj.Dialogue(subIntro1, subDict1)
 
+        # Sub-dialogue for "I'm a hunter and looking for work"
+        subIntro2 = ["Villager: We need your help! There's a dangerous beast nearby. Will you help us?\n"]
+        subDict2 = {
+            "You: No, I can't help you\n": Pnj.Line(
+                "Villager: Coward! *He and the other villagers kill you on the spot.* GAME OVER.\n",
+                action=lambda: GameManager.Game.loose(self)
+            ),
+            "You: Yes, I'll help you\n": Pnj.Line(
+                "Villager: Thank you! The village is counting on you. *He hands you a potion.*\n",
+                action=lambda: GameManager.Game.givePotion(self)
+            )
+        }
+        subDialogue2 = Pnj.Dialogue(subIntro2, subDict2)
 
-        self.pnj = Pnj.Pnj("Corentin", introDialogues, dict)
+        # Linking sub-dialogues
+        linkedDialogues = [subDialogue1, subDialogue2]
+
+        # Main Dialogue Object
+        mainDialogue = Pnj.Dialogue(introDialogues, dict_main, linkedDialogues)
+        dialogues = [mainDialogue]
+
+        # Assign to the NPC
+        self.pnj = Pnj.Pnj(dialogues)
 
 
 
     def handleVillage(self):
-        print("In the heart of the Greystone Mountains, the peaceful village of Greystone was plagued by a terrible threat. Each night, a shadowy wyvern descended, snatching sheep and cattle, leaving the villagers in terror.\n" +
-              "Desperate they turn to you and seek for help, Will you helped them:  \n")
-
-        inputBegin = Game.getInput(Game.getCommandRequestMessage() + "(y/n): ", ["y","n"])
-        if Game.checkAnwser(inputBegin, "y"):
-            pass
-        elif Game.checkAnwser(inputBegin, "n"):
-            print("Coward ! Say the village chief before murdering you...\n")
-            self.state = STATE.END
+        print("In the heart of the Greystone Mountains, the peaceful village of Greystone. You entered the village in the evening\n")
+        self.pnj.interactPlayer()
 
     def handleRuin(self):
         print("You see a chest. Will you open it?")
@@ -204,7 +249,7 @@ class Game:
             print("What do you do? Deal a blow or use a potion (blow/potion) \n:")
             inputChoice = Game.getInput(Game.getCommandRequestMessage() + "(blow/potion) : ", ["blow", "potion"])
             if Game.checkAnwser(inputChoice, "blow"):
-                sucess = Dnd.roll(self.player.strength, 15)
+                sucess = Dnd.roll(self.player.strength, 10)
                 if sucess:
                     print("You successfully deal a blow!\n")
                     self.wyvern.life -= self.player.damage

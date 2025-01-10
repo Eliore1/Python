@@ -1,7 +1,11 @@
 ﻿from GameManager import Game
 
-game = Game()
-#game.run()
-game.pnj.interactPlayer()
+
+def main():
+    game = Game()
+    game.run()
+
+if __name__ == "__main__":
+    main()
 
 
